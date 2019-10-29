@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -26,6 +27,7 @@ import java.util.Set;
 public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener, OnActivityTouchListener {
     private static final String TAG = "RecyclerTouchListener";
     final Handler handler = new Handler();
+    private SwipeRefreshLayout swipeRefreshLayout;
     Activity act;
     List<Integer> unSwipeableRows;
     /*
@@ -97,6 +99,12 @@ public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener, 
     };
 
     private RecyclerTouchListener() {
+    }
+
+    public RecyclerTouchListener(Activity a, RecyclerView recyclerView, SwipeRefreshLayout swipeRefreshLayout) {
+
+        this(a, recyclerView);
+        this.swipeRefreshLayout = swipeRefreshLayout;
     }
 
     public RecyclerTouchListener(Activity a, RecyclerView recyclerView) {
@@ -570,6 +578,7 @@ public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener, 
             }
 
             case MotionEvent.ACTION_CANCEL: {
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setEnabled(true);
                 handler.removeCallbacks(mLongPressed);
                 if (mLongClickPerformed)
                     break;
@@ -596,6 +605,7 @@ public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener, 
 
             // When finger is lifted off the screen (after clicking, flinging, swiping, etc..)
             case MotionEvent.ACTION_UP: {
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setEnabled(true);
                 handler.removeCallbacks(mLongPressed);
                 if (mLongClickPerformed)
                     break;
@@ -812,6 +822,7 @@ public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener, 
 
                 // This block moves the foreground along with the finger when swiping
                 if (swipeable && isFgSwiping && !unSwipeableRows.contains(touchedPosition)) {
+                    if (swipeRefreshLayout != null)  swipeRefreshLayout.setEnabled(false);
                     if (bgView == null) {
                         bgView = touchedView.findViewById(bgViewID);
                         bgView.setVisibility(View.VISIBLE);
